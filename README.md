@@ -1,14 +1,14 @@
 # Size-of-files
 Computer Architecture, assembly function that returns the size of all files in a given folder
 ---
-Napisz w 32-bitowym asemblerze funkcje przystosowaną do wywołania z poziomu języka C, która zwróci wartość wyrażającą łączny rozmiar wszystkich plików znajdujących się w zadanym katalogu. Prototyp funkcji jest następujący:
+Write a function in 32-bit assembler adapted to be called from the C language level that returns a value expressing the total size of all files contained in a given directory. The prototype of the function is as follows:  
 ```
 double size_of_files(int handle, wchar_t* parent_path); 
 ```
-Przekazany parametr *handle* został wcześniej pozyskany w wyniku wywołania funkcji *FindFirstFile* (patrz dalsze przykłady i opis), zaś drugi parametr to łańcuch znaków UTF-16 z nazwą katalogu do przeszukania. W celu uzyskania rozmiaru pliku należy wywoływać funkcję *FindNextFile*, która wypełnia strukturę *WIN32_FIND_DATA* metadanymi o pliku. W tej strukturze pole *dwFileAttributes* o offsecie 0 umożliwia określenie czy plik jest plikiem zwykłym czy katalogiem (ustawiony bit 4 wskazuje na katalog). Pola o offsetach +28 i +32 (*nFileSizeHigh*, *nFileSizeLow*) wyrażają rozmiar pliku (w bajtach), w formie 64-bitowej liczby. Zwracany wynik funkcji *size_of_files* ma wyrażać rozmiar w MB jako 64-bitową liczbę zmiennoprzecinkową.  
-<sub>Uwaga: zakładamy, że pełna ścieżka do dowolnego pliku nie przekroczy 1024 bajtów.</sub>  
+The *handle* parameter passed was previously obtained by calling the *FindFirstFile* function (see further examples and description), and the second parameter is a UTF-16 character string with the name of the directory to be searched. To obtain the file size, the *FindNextFile* function must be called, which fills the *WIN32_FIND_DATA* structure with metadata about the file. In this structure, the *dwFileAttributes* field with offset 0 allows you to specify whether the file is a regular file or a directory (bit 4 when set indicates a directory). The fields with offsets +28 and +32 (*nFileSizeHigh*, *nFileSizeLow*) express the size of the file (in bytes), as a 64-bit number. The returned result of the *size_of_files* function is to express the size in MB as a 64-bit floating point number.  
+<sub>Note: we assume that the full path to any file will not exceed 1024 bytes.</sub>  
 
-Przykładowe wywołanie tworzonej funkcji w języku C:
+Example of a call to a created function in C:  
 ```
 int handle = FindFirstFile(L"C:\\some\\folder\\*", &FindFileData); 
 printf("Total: %lf\n", size_of_files(handle, "C:\\some\\folder"));
@@ -16,14 +16,14 @@ printf("Total: %lf\n", size_of_files(handle, "C:\\some\\folder"));
 
 ---
 
-Opis funkcji:
+Function description:  
 ```
 int FindFirstFile {
   [in]  wchar_t*         FileName,
   [out] WIN32_FIND_DATA* FindFileData
 };
 ```
-Funkcja zwraca uchwyt (wyrażony jako liczba 32-bitowa) dla dalszych poszukiwań plików, które przynależą do katalogu *FileName* (pierwszy parametr). Struktura *FindFileData* zawiera metadane opisujące sam katalog.  
+The function returns a handle (expressed as a 32-bit number) for further searches for files that belong to the *FileName* directory (first parameter). The *FindFileData* structure contains metadata describing the directory itself.  
   
 ```
 BOOL FindNextFile {
@@ -31,18 +31,18 @@ BOOL FindNextFile {
   [out] WIN32_FIND_DATA* FindFileData
 };
 ```
-Funkcja zwraca wartość *true* jeśli odnaleziono kolejny plik w katalogu o danym uchwycie *FindFileHandle* lub *false* jeśli nie znaleziono więcej plików. Struktura *FindFileData* zawiera metadane opisujące kolejny, odnaleziony plik.
+The function returns *true* if the next file in the directory with the given *FindFileHandle* was found, or *false* if no more files were found. The *FindFileData* structure contains metadata describing the next file found.
 ```
 typedef struct _WIN32_FIND DATA {
-  DWORD   dwFileAttributes;       //atrybuty pliku
-  QWORD   ftCreationTime;         //czas utworzenia pliku
-  QWORD   ftLastAccessTime:       //czas ostatniego dostępu do pliku
-  QWORD   ftLastWriteTime;        //czas ostatniego zapisu do pliku
-  DWORD   nFileSizeHigh;          //pola rozmiaru
+  DWORD   dwFileAttributes;       //file attributes
+  QWORD   ftCreationTime;         //file creation time
+  QWORD   ftLastAccessTime:       //last time the file was accessed
+  QWORD   ftLastWriteTime;        //time of last writing to file
+  DWORD   nFileSizeHigh;          //size fields
   DWORD   nFileSizeLow;      
-  DWORD   dwReserved0;            // pola zarezerwowane
+  DWORD   dwReserved0;            //reserved fields
   DWORD   dwReserved1;
-  wchar_t cFileName [260];        // nazwa pliku
-  wchar_t cAlternateFileName[14]; // krótka nazwa pliku
+  wchar_t cFileName [260];        //filename
+  wchar_t cAlternateFileName[14]; //short filename
 }
 ```
