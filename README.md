@@ -1,5 +1,5 @@
 # Size-of-files
-Computer Architecture, assembly function that returns the size of all files in a given folder
+Computer Architecture, assembly function that returns the size of all files in a given directory 
 ---
 Write a function in 32-bit assembler adapted to be called from the C language level that returns a value expressing the total size of all files contained in a given directory. The prototype of the function is as follows:  
 ```
